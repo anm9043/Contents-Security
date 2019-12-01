@@ -2,41 +2,164 @@ package contentssecurity;
 
 import java.io.BufferedReader;
 import java.io.FileInputStream;
+import java.io.IOException;
 import java.io.InputStreamReader;
+import java.util.Random;
 
 public class Main {
+
+
+    //CSVファイルから配列に値を読み込むためのメソッド
+    static void inputArray(double[][] a, FileInputStream fis){
+        try{
+            final int row = a.length;     //行数
+            final int clm = a[0].length;  //列数
+
+            InputStreamReader isr = new InputStreamReader((fis), "UTF-8");
+            BufferedReader    br  = new BufferedReader(isr);
+
+            br.readLine(); //1行目を捨てる
+
+            for(int i = 0; i < row; i++){
+                String input = br.readLine();
+                String temp[] = input.split(",", 0);
+                for(int j = 0; j < clm; j++){
+                    a[i][j] = Double.parseDouble(temp[j + 1]);
+                }
+            }
+        }catch(IOException e){
+            System.err.println(e.getMessage());
+        }
+        
+    }
+
+    static void generateRandomArray(double[][] a){
+        final int row = a.length;
+        final int clm = a[0].length;
+
+        Random rand = new Random();
+
+        for(int i = 0; i < row; i++){
+            for(int j = 0; j < clm; j++){
+                a[i][j] = (double)rand.nextInt(100);
+            }
+        }
+    }
+
+    //行列aと行列bの積を行列cに書き込むメソッド
+    static boolean matrixProduct(double[][] a, double[][] b, double[][] c){
+        final int a_row = a.length;      //aの行数
+        final int a_clm = a[0].length;   //aの列数
+        final int b_row = b.length;      //bの行数
+        final int b_clm = b[0].length;   //bの列数
+        final int c_row = c.length;      //cの行数
+        final int c_clm = c[0].length;   //cの列数
+
+        if((a_clm != b_row) || (a_row != c_row) || (b_clm != c_clm))
+            return false;  //行列の積が計算出来ない
+        else{
+            for(int i = 0; i < a_row; i++){
+                for(int j = 0; j < b_clm; j++){
+                    c[i][j] = 0.0;
+                    for(int k = 0; k < a_clm; k++){
+                        c[i][j] += a[i][k] * b[k][j];
+                    }
+                }
+            }
+            return true;
+        }
+    }
+
+    //合否行列を生成するメソッド
+    static boolean generatePOFmatrix(double[][] apttd, double[] bottom, double[][] pof){
+        final int apttd_row = apttd.length;
+        final int apttd_clm = apttd[0].length;
+        final int pof_row   = pof.length;
+        final int pof_clm   = pof[0].length;
+
+        if((apttd_clm != bottom.length) || (apttd_row != pof_row) || (apttd_clm != pof_clm)){
+            return false;  //合否行列を生成出来ない
+        }else{
+            for(int i = 0; i < apttd_row; i++){
+                for(int j = 0; j < apttd_clm; j++){
+                    pof[i][j] = (apttd[i][j] >= bottom[j]) ? 1.0 : 0.0;
+                }
+            }
+            return true;
+        }
+    }
+
 	
 	public static void main(String[] args) throws Exception {
 
-        double grade[][]        = new double[4][6]; //成績行列
-        double weight[][]       = new double[6][4]; //重み行列
-        double pass_or_fail[][] = new double[4][4]; //合否行列
-        
-        FileInputStream   fis = new FileInputStream("/workspace/Contents-Security/programs/kadai1/contentssecurity/seiseki.txt");
-        InputStreamReader isr = new InputStreamReader((fis), "UTF-8");
-        BufferedReader    br  = new BufferedReader(isr);
-        
-        br.readLine();
+        final int n_stdnt = 4;  //生徒数
+        final int n_sbjct = 6;  //科目数
+        final int n_schol = 4;  //高校数
 
-        //成績行列に値を読み込み
-        for(int i = 0; i < 4; i++){
-            String input = br.readLine();
-            String temp[] = input.split(",", 0);
-            for(int j = 0; j < 6; j++){
-                grade[i][j] = Double.parseDouble(temp[j + 1]);
+        final double grade[][]  = new double[n_stdnt][n_sbjct]; //成績行列
+        final double weight[][] = new double[n_sbjct][n_schol]; //重み行列
+        final double btmln[][]  = new double[1][n_schol];       //合格最低点行列
+        final double apttd[][]  = new double[n_stdnt][n_schol]; //適性行列 Aptitude
+        final double pof[][]    = new double[n_stdnt][n_schol];//合否行列 Pass or Fail
+        
+
+        // 成績行列に値を読み込み
+        FileInputStream   fis = new FileInputStream("./contentssecurity/seiseki.txt");
+        inputArray(grade, fis);
+
+        // 重み行列に値を読み込み
+        fis = new FileInputStream("./contentssecurity/omomi.txt");
+        inputArray(weight, fis);
+
+        //合格最低点行列に値を読み込み
+        fis = new FileInputStream("./contentssecurity/saiteiten.txt");
+        inputArray(btmln, fis);
+
+        if(matrixProduct(grade, weight, apttd)){
+            System.out.println("適性行列");
+            System.out.println("      高校A 高校B 高校C 高校D");
+            for(int i = 0; i < n_stdnt; i++){
+                System.out.print("生徒" + (i + 1) + " ");
+                for(int j = 0; j < n_schol; j++){
+                    System.out.printf("%5.1f ", apttd[i][j]);
+                }
+                System.out.println();
             }
+
+            if(generatePOFmatrix(apttd, btmln[0], pof)){
+                System.out.println();
+                System.out.println("合否行列");
+                System.out.println("      高校A 高校B 高校C 高校D");
+                for(int i = 0; i < n_stdnt; i++){
+                    System.out.print("生徒" + (i + 1) + " ");
+                    for(int j = 0; j < n_schol; j++){
+                        System.out.print(pof[i][j] == 0.0 ? "　否　" : "　合　");
+                    }
+                    System.out.println();
+                }
+            }
+            
         }
 
-        fis = FileInputStream()
-    
-        
 
-        System.out.println("        国 数 英 理 社 内");
+
+        // テスト用
+        // System.out.println("        国 数 英 理 社 内");
+        // for(int i = 0; i < n_stdnt; i++){
+        //     System.out.printf("生徒%d  ", i);
+        //     for(int j = 0; j < n_sbjct; j++){
+        //         System.out.printf("%3.0f", grade[i][j]);
+        //     }
+        //     System.out.println();
+        // }
+
+        // System.out.println("　　高校A 高校B 高校C 高校D");
+        // System.out.print  ("国 ");
+        // for(int i = 0; i < n_schol; i++){
+        //     System.out.printf("%5.1f ", weight[0][i]);
+        // }
+        // System.out.println();
         
-        for(int i = 0; i < 6; i++){
-            System.out.printf("生徒%d  %3.0f%3.0f%3.0f%3.0f%3.0f%3.0f\n",
-                i + 1, grade[i][0], grade[i][1], grade[i][2], grade[i][3], grade[i][4], grade[i][5]);
-        }
         
         
 	}
