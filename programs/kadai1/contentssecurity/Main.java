@@ -196,26 +196,5 @@ public class Main {
 
         }
 
-
-
-        // テスト用
-        // System.out.println("        国 数 英 理 社 内");
-        // for(int i = 0; i < n_stdnt; i++){
-        //     System.out.printf("生徒%d  ", i);
-        //     for(int j = 0; j < n_sbjct; j++){
-        //         System.out.printf("%3.0f", grade[i][j]);
-        //     }
-        //     System.out.println();
-        // }
-
-        // System.out.println("　　高校A 高校B 高校C 高校D");
-        // System.out.print  ("国 ");
-        // for(int i = 0; i < n_schol; i++){
-        //     System.out.printf("%5.1f ", weight[0][i]);
-        // }
-        // System.out.println();
-
-
-
 	}
 }
