@@ -142,6 +142,36 @@ public class Main {
 						double[][] pof = null; //合否行列
 						pof = connector.getTable();
 
+						//合否行列をファイルに書き込み
+						//https://www.sejuku.net/blog/20960
+						try{
+							FileWriter file = new FileWriter ("./contentssecurity/gouhi.txt");
+							PrintWriter pw  = new PrintWriter(new BufferedWriter(file));
+
+							//1行目
+							pw.print("合否行列");
+							char ch = 'A';
+							for(int i = 0; i < n_schol; i++, ch++){
+								pw.printf(",高校%c", ch);
+							}
+							pw.println();
+
+							//2行目以降
+							for(int i = 0; i < n_stdnt; i++){
+								pw.printf("生徒%d", i + 1);
+								for(int j = 0; j < n_schol; j++){
+									pw.print("," + ((pof[i][j] == 0.0) ? "否" : "合"));
+								}
+								pw.println();
+							}
+
+							pw.close();
+						} catch(IOException e){
+							e.printStackTrace();
+						}
+
+
+
 						System.out.println();
 						System.out.println("合否行列");
 						System.out.println("      高校A 高校B 高校C 高校D");
