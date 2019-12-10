@@ -1,10 +1,7 @@
 package contentssecurity;
 
-import java.io.BufferedReader;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.util.Random;
+import java.io.*;
+import java.util.*;
 
 public class Main {
 
@@ -30,7 +27,7 @@ public class Main {
         }catch(IOException e){
             System.err.println(e.getMessage());
         }
-        
+
     }
 
     static void generateRandomArray(double[][] a){
@@ -89,7 +86,7 @@ public class Main {
         }
     }
 
-	
+
 	public static void main(String[] args) throws Exception {
 
         final int n_stdnt = 4;  //生徒数
@@ -101,7 +98,7 @@ public class Main {
         final double btmln[][]  = new double[1][n_schol];       //合格最低点行列
         final double apttd[][]  = new double[n_stdnt][n_schol]; //適性行列 Aptitude
         final double pof[][]    = new double[n_stdnt][n_schol];//合否行列 Pass or Fail
-        
+
 
         // 成績行列に値を読み込み
         FileInputStream   fis = new FileInputStream("./contentssecurity/seiseki.txt");
@@ -137,8 +134,66 @@ public class Main {
                     }
                     System.out.println();
                 }
+
+                //ファイル出力
+                //https://www.sejuku.net/blog/20960
+                try{
+                    //合否行列
+                    FileWriter file = new FileWriter ("./contentssecurity/gouhi.txt");
+                    PrintWriter pw  = new PrintWriter(new BufferedWriter(file));
+
+                    //1行目
+                    pw.print("合否行列");
+                    char ch = 'A';
+                    for(int i = 0; i < n_schol; i++, ch++){
+                        pw.printf(",高校%c", ch);
+                    }
+                    pw.println();
+
+                    //2行目以降
+                    for(int i = 0; i < n_stdnt; i++){
+                        pw.printf("生徒%d", i + 1);
+                        for(int j = 0; j < n_schol; j++){
+                            pw.print("," + ((pof[i][j] == 0.0) ? "否" : "合"));
+                        }
+                        pw.println();
+                    }
+
+                    pw.close();
+
+
+
+                    //適性行列
+                    file = new FileWriter("./contentssecurity/tekisei.txt");
+                    pw   = new PrintWriter(new BufferedWriter(file));
+
+                    //1行目
+                    pw.print("適性行列");
+                    ch = 'A';
+                    for(int i = 0; i < n_schol; i++, ch++){
+                        pw.printf(",高校%c", ch);
+                    }
+                    pw.println();
+
+                    //2行目以降
+                    for(int i = 0; i < n_stdnt; i++){
+                        pw.printf("生徒%d", i + 1);
+                        for(int j = 0; j < n_schol; j++){
+                            pw.printf(",%.1f", apttd[i][j]);
+                        }
+                        pw.println();
+                    }
+
+                    pw.close();
+
+
+                } catch(IOException e){
+                    e.printStackTrace();
+                }
+
+
             }
-            
+
         }
 
 
@@ -159,9 +214,8 @@ public class Main {
         //     System.out.printf("%5.1f ", weight[0][i]);
         // }
         // System.out.println();
-        
-        
-        
+
+
+
 	}
 }
-
